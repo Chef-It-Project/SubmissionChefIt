@@ -1,3 +1,4 @@
+
 from flask import Blueprint, render_template, jsonify, request, flash, send_from_directory, flash, redirect, url_for
 from flask_jwt_extended import jwt_required, current_user, unset_jwt_cookies, set_access_cookies
 
@@ -27,17 +28,44 @@ def identify_page():
     return render_template('message.html', title="Identify", message=f"You are logged in as {current_user.id} - {current_user.username}")
     
 
-@auth_views.route('/login', methods=['POST'])
+@auth_views.route('/login', methods=['GET', 'POST'])
 def login_action():
-    data = request.form
-    token = login(data['username'], data['password'])
-    response = redirect(request.referrer)
+    if request.method == 'GET':
+        return render_template('index.html')
+    
+    # Handle POST: get username and password from the login form
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    token = login(username, password)  # This should return a JWT if authentication is successful
     if not token:
-        flash('Bad username or password given'), 401
-    else:
-        flash('Login Successful')
-        set_access_cookies(response, token) 
+        flash('Invalid credentials', 'error')
+        return redirect(url_for('auth_views.login_action'))
+    
+    # Create response
+    response = redirect(url_for('home_views.home_page'))
+    
+    # Set JWT in both cookie and header
+    set_access_cookies(response, token)
+    response.headers['Authorization'] = f'Bearer {token}'
+    
+    # Set cookie max age and other options
+    response.set_cookie(
+        'access_token',
+        token,
+        httponly=True,
+        secure=True,  # Required for SameSite=None
+        samesite='Lax',  # More secure than 'None'
+        max_age=3600,  # 1 hour
+        path='/'  # Ensure cookie is available for all paths
+    )
+    
+    flash('Login successful!', 'success')
     return response
+
+@auth_views.route('/signup', methods=['GET'])
+def signup_action():
+    return render_template('signup.html')  # Make sure you have this template
 
 @auth_views.route('/logout', methods=['GET'])
 def logout_action():
@@ -45,6 +73,7 @@ def logout_action():
     flash("Logged Out!")
     unset_jwt_cookies(response)
     return response
+
 
 '''
 API Routes
