@@ -1,13 +1,153 @@
-{% extends "layout.html" %}
-{% block title %}Flask MVC App{% endblock %}
-{% block page %}Flask MVC App{% endblock %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Chef It</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+      }
 
-{{ super() }}
+      body,
+      html {
+        height: 100%;
+      }
 
-{% block content %}
-    <h1>Flask MVC</h1>
-    {% if is_authenticated %}
-        <p> Welcome {{current_user.username}} </p>
-    {% endif %}
-    <p>This is a boileplate flask application which follows the MVC pattern for structuring the project.</p>
-{% endblock %}
+      body.login-body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: url("https://images.unsplash.com/photo-1543353071-10c8ba85a904?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZCUyMGJhY2tncm91bmR8ZW58MHx8MHx8fDA%3D")
+          no-repeat center center/cover;
+      }
+
+      .login-container {
+        background-color: rgba(22, 57, 67, 255);
+        padding: 2.5rem;
+        border-radius: 10px;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .logo-inside-card {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .logo-inside-card img {
+        width: 120px;
+        height: auto;
+      }
+
+      .login-title {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: #333;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        width: 100%;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+
+      button[type="submit"] {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .switch-link {
+        text-align: center;
+        margin-top: 1rem;
+      }
+
+      .flash-messages {
+        margin-bottom: 1rem;
+      }
+
+      .flash-msg {
+        padding: 0.5rem;
+        border-radius: 4px;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: white;
+      }
+
+      .flash-msg.error {
+        background-color: #dc3545;
+      }
+
+      .flash-msg.success {
+        background-color: #28a745;
+      }
+    </style>
+  </head>
+
+  <body class="login-body">
+    <div class="login-container">
+      <div class="logo-inside-card">
+        <img
+          src="{{ url_for('static', filename='images/Chef It Logo.png') }}" alt="Chef It Logo"
+          alt="Chef It Logo"
+          style="width: 160px; height: auto"
+        />
+      </div>
+      <h2 class="login-title" style="color: white">
+        Welcome Back <span class="emoji">🍽️</span>
+      </h2>
+      <form action="{{ url_for('auth_views.login_action') }}" method="POST">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+          <div class="flash-msg {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %} {% endwith %}
+        <div class="form-group">
+          <label for="username"><i class="fas fa-user"></i> Username</label>
+          <input
+            type="text"
+            id="username-input"
+            name="username"
+            placeholder="Enter your username"
+            required
+            value="{{ request.form.username if request.form.username }}"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password"><i class="fas fa-lock"></i> Password</label>
+          <input
+            type="password"
+            id="password-input"
+            name="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+        <button type="submit"><i class="fas fa-sign-in-alt"></i> Login</button>
+      </form>
+      <p class="switch-link">
+        Don't have an account?
+        <a href="{{ url_for('auth_views.signup_action') }}">Sign up</a>
+      </p>
+    </div>
+  </body>
+</html>
